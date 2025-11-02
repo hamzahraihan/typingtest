@@ -1,7 +1,7 @@
 import englishWords from "../../static/words.json" with { type: "json" };
 
 // create a random words based on words.json
-class RandomWords {
+export class RandomWords {
   private static _instance: RandomWords;
   private static randomWords: string[] = [];
   private static words: string[] = englishWords.words;
@@ -16,10 +16,11 @@ class RandomWords {
     return RandomWords._instance;
   }
 
-  public static get getRandomWords() {
+  public static getRandomWords(totalWords: number) {
+    // checking performance of generating random words
     const s = performance.now();
 
-    this.generateRandomWords();
+    this.generateRandomWords(totalWords);
 
     const e = performance.now();
 
@@ -27,11 +28,11 @@ class RandomWords {
     return this.randomWords;
   }
 
-  private static generateRandomWords() {
+  private static generateRandomWords(totalWords: number) {
     // const words = [...this.words];
 
     const shuffled = [...this.words].sort(() => Math.random() - 0.5);
-    this.randomWords = shuffled.slice(0, 10);
+    this.randomWords = shuffled.slice(0, totalWords);
 
     // for (let i = this.words.length - 1; i > 0; i--) {
     //   const j = Math.floor(Math.random() * i + 1);
@@ -49,8 +50,8 @@ class RandomWords {
   }
 }
 
-const random = RandomWords.getRandomWords;
-console.log(random);
+// const random = RandomWords.getRandomWords;
+// console.log(random);
 
 // function randomWords() {
 //   const words = englishWords.words;
