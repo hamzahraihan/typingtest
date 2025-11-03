@@ -19,16 +19,19 @@ function App() {
         const isCorrect = inputWord.trim() === currentWord;
 
         if (isCorrect) {
+          completedWords.push(currentWord);
           setCurrentWordIndex((prev) => prev + 1);
           setInputWord("");
+
           console.log(
             "correct! now onto the word: ",
             randomWords[currentWordIndex + 1],
           );
+          console.log("word placed in completedWords: ", completedWords);
         }
       }
     },
-    [currentWordIndex, inputWord, randomWords],
+    [currentWordIndex, inputWord, randomWords, completedWords],
   );
 
   useEffect(() => {
@@ -56,7 +59,7 @@ function App() {
               return (
                 <div
                   key={i}
-                  className={i == currentWordIndex ? "active" : ""}
+                  className={`m-1 ${i == currentWordIndex ? "active" : ""}`}
                   data-wordindex={i}
                 >
                   {word.split("").map((letter, j) => {
