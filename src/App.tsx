@@ -5,33 +5,75 @@ import { RandomWords } from "./util/random-words.ts";
 function App() {
   const [inputWord, setInputWord] = useState<string>("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [completedWords, setCompletedWords] = useState<string[]>([]);
+  console.log(currentWordIndex);
+  const [typedWords, setTypedWords] = useState<string[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const randomWords = useMemo(() => RandomWords.getRandomWords(30), []);
 
+  console.log("word placed in typedWords: ", typedWords);
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       inputRef.current?.focus();
-      if (e.key === " " || e.key === "Tab") {
-        e.preventDefault();
-        const currentWord = randomWords[currentWordIndex];
-        const isCorrect = inputWord.trim() === currentWord;
 
-        if (isCorrect) {
-          completedWords.push(currentWord);
-          setCurrentWordIndex((prev) => prev + 1);
-          setInputWord("");
+      // pressed backspace key event
+      if (e.key === "Backspace" || e.key == "Delete") {
+        const previousIndex = currentWordIndex - 1;
+        const previousWord = randomWords[previousIndex];
+        const previousTypedWord = typedWords[previousIndex];
+        console.log("from previous random words: ", previousWord);
+        console.log("from previous typed words: ", previousTypedWord);
 
-          console.log(
-            "correct! now onto the word: ",
-            randomWords[currentWordIndex + 1],
-          );
-          console.log("word placed in completedWords: ", completedWords);
+        if (!previousWord || previousTypedWord === undefined) return;
+
+        const isCorrect = previousWord === previousTypedWord;
+        if (!isCorrect) {
+          setTypedWords((prev) => {
+            const newWords = [...prev];
+            const lastTyped: string = newWords[previousIndex];
+
+            if (lastTyped) {
+              const chars = lastTyped.split("");
+              chars.pop();
+
+              if (chars.length === 0) {
+                newWords.splice(previousIndex, 1);
+                setCurrentWordIndex(previousIndex);
+              } else {
+                newWords[previousIndex] = chars.join("");
+                setCurrentWordIndex(previousIndex + 1);
+              }
+            }
+            return newWords;
+          });
         }
       }
+
+      // pressed space or tab key event
+      if (e.key === " " || e.key === "Tab") {
+        e.preventDefault();
+        // const isCorrect = inputWord.trim() === currentWord;
+        if (inputWord.length > 0 || inputWord) {
+          setTypedWords((prev) => [...prev, inputWord]);
+          setInputWord("");
+          setCurrentWordIndex((prev) => prev + 1);
+        }
+
+        console.log("now onto the next word: ", randomWords[currentWordIndex]);
+
+        // if (isCorrect) {
+        //   setInputWord("");
+        //
+        //   console.log(
+        //     "correct! now onto the word: ",
+        //     randomWords[currentWordIndex + 1],
+        //   );
+        //   console.log("");
+        //   setCurrentWordIndex((prev) => prev + 1);
+        // }
+      }
     },
-    [currentWordIndex, inputWord, randomWords, completedWords],
+    [currentWordIndex, inputWord, randomWords, typedWords],
   );
 
   useEffect(() => {
@@ -57,11 +99,7 @@ function App() {
             .split(" ")
             .map((word, i) => {
               return (
-                <div
-                  key={i}
-                  className={`m-1 ${i == currentWordIndex ? "active" : ""}`}
-                  data-wordindex={i}
-                >
+                <div key={i} className={`m-1 opacity-20`} data-wordindex={i}>
                   {word.split("").map((letter, j) => {
                     return <span key={j}>{letter}</span>;
                   })}
