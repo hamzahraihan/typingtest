@@ -144,10 +144,23 @@ function App() {
               <div key={i} className="m-1" data-wordindex={i}>
                 {word.split("").map((letter, j) => {
                   let className = "";
-                  if (isCurrent) {
-                    className =
-                      inputWord[j] === letter ? "text-black" : "text-red-500";
+                  if (isCurrent && inputWord[j] === letter) {
+                    className = "text-black";
                   }
+                  if (isCurrent && inputWord[j] != letter) {
+                    className = "text-red-500";
+                  }
+                  if (inputWord[j] == undefined) {
+                    className = "opacity-20";
+                  }
+
+                  if (!isCurrent && typedWords[i]) {
+                    className =
+                      typedWords[i][j] === letter
+                        ? "text-black"
+                        : "text-red-500";
+                  }
+
                   if (i > currentWordIndex) {
                     className = "opacity-20";
                   }
