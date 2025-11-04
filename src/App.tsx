@@ -7,11 +7,15 @@ function App() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   console.log(currentWordIndex);
   const [typedWords, setTypedWords] = useState<string[]>([]);
+  console.log(typedWords);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const randomWords = useMemo(() => RandomWords.getRandomWords(30), []);
+  const randomWords = useMemo(
+    () => RandomWords.getRandomWords(30).join(" ").split(" "),
+    [],
+  );
+  console.log("word  in random word : ", randomWords[currentWordIndex]);
 
-  console.log("word placed in typedWords: ", typedWords);
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       inputRef.current?.focus();
@@ -28,38 +32,76 @@ function App() {
 
         const isCorrect = previousWord === previousTypedWord;
         if (!isCorrect) {
-          setTypedWords((prev) => {
-            const newWords = [...prev];
-            const lastTyped: string = newWords[previousIndex];
+          if (inputWord.length === 0 && currentWordIndex > 0) {
+            setTypedWords((prev) => {
+              const copy = [...prev];
+              setInputWord(copy[currentWordIndex - 1]);
+              copy.splice(currentWordIndex - 1, 1);
+              return copy;
+            });
+            setCurrentWordIndex((prev) => prev - 1);
+          }
 
-            if (lastTyped) {
-              const chars = lastTyped.split("");
-              chars.pop();
-
-              if (chars.length === 0) {
-                newWords.splice(previousIndex, 1);
-                setCurrentWordIndex(previousIndex);
-              } else {
-                newWords[previousIndex] = chars.join("");
-                setCurrentWordIndex(previousIndex + 1);
-              }
-            }
-            return newWords;
-          });
+          // setTypedWords((prev) => {
+          //   const copy = [...prev];
+          //   const lastTyped: string = copy[previousIndex];
+          //
+          //   if (lastTyped) {
+          //     const chars = lastTyped.split("");
+          //     chars.pop();
+          //     if (chars.length === 0) {
+          //       copy.splice(previousIndex, 1);
+          //       setCurrentWordIndex(previousIndex);
+          //     } else {
+          //       copy[previousIndex] = chars.join("");
+          //       setCurrentWordIndex(previousIndex + 1);
+          //     }
+          //   }
+          //   return copy;
+          // });
         }
       }
 
       // pressed space or tab key event
       if (e.key === " " || e.key === "Tab") {
         e.preventDefault();
-        // const isCorrect = inputWord.trim() === currentWord;
-        if (inputWord.length > 0 || inputWord) {
-          setTypedWords((prev) => [...prev, inputWord]);
+
+        // const isCorrect = inputWord.trim() === randomWords[currentWordIndex];
+        //
+        // if (!isCorrect) {
+        //   setTypedWords((prev) => {
+        //     const newWords = [...prev];
+        //     if (inputWord.length > 0) {
+        //       newWords[currentWordIndex - 1] = inputWord;
+        //     }
+        //     return newWords;
+        //   });
+        // }
+
+        const trimmedInput = inputWord.trim();
+        if (trimmedInput.length === 0) return;
+
+        if (inputWord.length > 0) {
+          setTypedWords((prev) => {
+            const copy = [...prev];
+            if (currentWordIndex < copy.length) {
+              copy[currentWordIndex - 1] =
+                copy[currentWordIndex - 1] + trimmedInput;
+            } else {
+              copy.push(trimmedInput);
+            }
+            console.log(copy[currentWordIndex]);
+            console.log("typedWords after update:", copy);
+            return copy;
+          });
+
           setInputWord("");
           setCurrentWordIndex((prev) => prev + 1);
+          console.log(
+            "now onto the next word: ",
+            randomWords[currentWordIndex],
+          );
         }
-
-        console.log("now onto the next word: ", randomWords[currentWordIndex]);
 
         // if (isCorrect) {
         //   setInputWord("");
@@ -91,21 +133,33 @@ function App() {
           value={inputWord}
           onChange={(e) => setInputWord(e.target.value)}
           className="opacity-0"
+          minLength={0}
+          maxLength={10}
         />
         <div className="absolute">{inputWord}</div>
         <div id="letter" className="flex flex-wrap">
-          {randomWords
-            .join(" ")
-            .split(" ")
-            .map((word, i) => {
-              return (
-                <div key={i} className={`m-1 opacity-20`} data-wordindex={i}>
-                  {word.split("").map((letter, j) => {
-                    return <span key={j}>{letter}</span>;
-                  })}
-                </div>
-              );
-            })}
+          {randomWords.map((word, i) => {
+            const isCurrent = i === currentWordIndex;
+            return (
+              <div key={i} className="m-1" data-wordindex={i}>
+                {word.split("").map((letter, j) => {
+                  let className = "";
+                  if (isCurrent) {
+                    className =
+                      inputWord[j] === letter ? "text-black" : "text-red-500";
+                  }
+                  if (i > currentWordIndex) {
+                    className = "opacity-20";
+                  }
+                  return (
+                    <span key={j} data-letterindex={j} className={className}>
+                      {letter}
+                    </span>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
