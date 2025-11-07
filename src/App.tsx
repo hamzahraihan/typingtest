@@ -19,7 +19,7 @@ function App() {
           onChange={(e) => setInputWord(e.target.value)}
           className="opacity-0"
           minLength={0}
-          maxLength={10}
+          maxLength={20}
         />
         <div className="absolute">{inputWord}</div>
         <TypingTest inputRef={inputRef} />
