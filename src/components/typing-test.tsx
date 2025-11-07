@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { RandomWords } from "../util/random-words.ts";
+import { RandomWords } from "../utils/random-words.ts";
 import { Word } from "./word.tsx";
 import { useWordContext } from "../context/word-store-context.ts";
 
@@ -142,7 +142,7 @@ export const TypingTest = ({
             key={i}
             word={word}
             isCurrent={isCurrent}
-            index={i}
+            wordIndex={i}
             currentWordIndex={currentWordIndex}
             inputWord={inputWord}
             typedWords={typedWords}
