@@ -9,7 +9,7 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="flex flex-col p-5 min-h-screen bg-gray-100">
+    <div className="antialiased flex flex-col p-5 min-h-screen bg-gray-100">
       <div className="relative text-xl h-fit ">
         <input
           id="input"
@@ -21,7 +21,7 @@ function App() {
           minLength={0}
           maxLength={20}
         />
-        <div className="absolute">{inputWord}</div>
+        <div className="absolute hidden">{inputWord}</div>
         <TypingTest inputRef={inputRef} />
       </div>
     </div>
