@@ -14,3 +14,10 @@
 .animate-fade-blink {
   animation: fade-blink 1s ease-in-out infinite;
 }
+
+@layer components {
+  .error {
+    border-bottom-width: 1.4px;
+    border-color: red;
+  }
+}
