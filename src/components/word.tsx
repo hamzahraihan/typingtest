@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
 export const Word = ({
   word,
@@ -17,12 +17,25 @@ export const Word = ({
 }) => {
   const [caretIndex, setCaretIndex] = useState<number>(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setCaretIndex(inputWord.length);
   }, [inputWord]);
 
+  const wordChecker = (): "error" | "active" | "typed" | "" => {
+    if (typedWords[wordIndex] == word) {
+      return "typed";
+    }
+    if (wordIndex < currentWordIndex && typedWords[wordIndex] !== word) {
+      return "error";
+    }
+    if (isCurrent) {
+      return "active";
+    }
+    return "";
+  };
+
   return (
-    <div className={`m-1 ${isCurrent ? "active" : ""}`}>
+    <div className={"m-1 " + wordChecker()}>
       {word.split("").map((letter, j) => {
         let className = "";
         // if user input a correct letter, the color change to black
@@ -58,10 +71,10 @@ export const Word = ({
           <span
             key={j}
             data-letterindex={j}
-            className={"relative inline-block p-[0.5px] " + className}
+            className={"relative inline-block px-[0.4px] " + className}
           >
             {isCurrent && caretIndex === j && (
-              <span className="h-6 w-0.5 rounded-lg absolute left-0 translate-y-1 font-bold animate-fade-blink bg-red-700" />
+              <span className="h-6 w-0.5 rounded-lg absolute left-0 translate-y-0.5 font-bold animate-fade-blink bg-red-700" />
             )}
             {letter}
           </span>
