@@ -19,7 +19,7 @@ export function useKeyboardEvent({
   setTypedWords: React.Dispatch<React.SetStateAction<string[]>>;
   setInputWord: (inputWord: string) => void;
 }) {
-  const handleKeyDown = useCallback(
+  const onFocus = useCallback(
     (e: KeyboardEvent) => {
       inputRef.current?.focus();
 
@@ -119,5 +119,5 @@ export function useKeyboardEvent({
     ],
   );
 
-  return { handleKeyDown };
+  return { onFocus };
 }
