@@ -35,7 +35,7 @@ export const Word = ({
   };
 
   return (
-    <div className={"m-1 " + wordChecker()}>
+    <div className={"m-1 text-4xl " + wordChecker()}>
       {word.split("").map((letter, j) => {
         let className = "";
         // if user input a correct letter, the color change to black
@@ -71,10 +71,10 @@ export const Word = ({
           <span
             key={j}
             data-letterindex={j}
-            className={"relative inline-block px-[0.4px] " + className}
+            className={"relative inline-block px-[0.8px] " + className}
           >
             {isCurrent && caretIndex === j && (
-              <span className="h-6 w-0.5 rounded-lg absolute left-0 translate-y-0.5 font-bold animate-fade-blink bg-red-700" />
+              <span className="h-10 w-1 rounded-lg absolute left-0 translate-y-0.5 font-bold animate-fade-blink bg-red-700" />
             )}
             {letter}
           </span>
