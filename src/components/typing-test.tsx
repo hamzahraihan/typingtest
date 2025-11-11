@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { RandomWords } from "../utils/random-words.ts";
 import { Word } from "./word.tsx";
 import { useWordContext } from "../context/word-store-context.ts";
 import { WordStatus } from "./stats.tsx";
 import { useKeyboardEvent } from "../events/keyboard.tsx";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 export const TypingTest = ({
   inputRef,
@@ -11,17 +12,13 @@ export const TypingTest = ({
   inputRef: React.RefObject<HTMLInputElement | null>;
 }) => {
   const [isFocus, setIsFocus] = useState(false);
-  console.log(isFocus);
+  const blurTimeoutRef = useRef<number | null>(0);
 
   const inputWord = useWordContext((state) => state.inputWord);
   const setInputWord = useWordContext((state) => state.setInputWord);
   const currentWordIndex = useWordContext((state) => state.currentWordIndex);
-  const setCurrentWordIndex = useWordContext(
-    (state) => state.setCurrentWordIndex,
-  );
 
   const typedWords = useWordContext((state) => state.typedWords);
-  const setTypedWords = useWordContext((state) => state.setTypedWords);
 
   const randomWords = useMemo(
     () => RandomWords.getRandomWords(30).join(" ").split(" "),
@@ -30,13 +27,7 @@ export const TypingTest = ({
 
   const keyboardEvent = useKeyboardEvent({
     inputRef,
-    currentWordIndex,
-    inputWord,
     randomWords,
-    typedWords,
-    setCurrentWordIndex,
-    setTypedWords,
-    setInputWord,
   });
 
   useEffect(() => {
@@ -62,8 +53,15 @@ export const TypingTest = ({
         className="h-full w-full z-10 opacity-0 absolute"
         minLength={0}
         maxLength={20}
-        onFocus={() => setIsFocus(true)}
-        onBlur={() => setTimeout(() => setIsFocus(false), 1000)}
+        onFocus={() => {
+          if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+          setIsFocus(true);
+        }}
+        onBlur={() => {
+          blurTimeoutRef.current = setTimeout(() => {
+            setIsFocus(false);
+          }, 1000);
+        }}
         autoComplete="off"
       />
       <div className="absolute hidden">{inputWord}</div>
@@ -91,7 +89,15 @@ export const TypingTest = ({
           );
         })}
       </div>
-      <div>reload</div>
+      <div className="self-center p-5">
+        <ReloadIcon
+          stroke="#9a9a9a"
+          width={20}
+          height={20}
+          fontWeight="10"
+          className="text-gray-400"
+        />
+      </div>
     </div>
   );
 };
