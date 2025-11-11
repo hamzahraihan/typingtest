@@ -1,37 +1,41 @@
-import { useCallback } from "react";
+import React, { useCallback } from "react";
+import { useWordContext } from "../context/word-store-context.ts";
 
 export function useKeyboardEvent({
   inputRef,
-  currentWordIndex,
-  inputWord,
   randomWords,
-  typedWords,
-  setCurrentWordIndex,
-  setTypedWords,
-  setInputWord,
 }: {
   inputRef: React.RefObject<HTMLInputElement | null>;
-  currentWordIndex: number;
-  inputWord: string;
   randomWords: string[];
-  typedWords: string[];
-  setCurrentWordIndex: (index: number) => void;
-  setTypedWords: React.Dispatch<React.SetStateAction<string[]>>;
-  setInputWord: (inputWord: string) => void;
 }) {
+  const inputWord = useWordContext((state) => state.inputWord);
+  const setInputWord = useWordContext((state) => state.setInputWord);
+  const currentWordIndex = useWordContext((state) => state.currentWordIndex);
+  const setCurrentWordIndex = useWordContext(
+    (state) => state.setCurrentWordIndex,
+  );
+  const previousWords = useWordContext((state) => state.previousWords);
+  const setPreviousWords = useWordContext((state) => state.setPreviousWords);
+
+  const typedWords = useWordContext((state) => state.typedWords);
+  const setTypedWords = useWordContext((state) => state.setTypedWords);
+
   const onFocus = useCallback(
     (e: KeyboardEvent) => {
       inputRef.current?.focus();
 
       // pressed backspace key event
       if (e.key === "Backspace" || e.key == "Delete") {
+        const currentWord = randomWords[currentWordIndex];
         const previousIndex = currentWordIndex - 1;
-        const previousWord = randomWords[previousIndex];
+        const previousWord = previousWords[previousIndex];
         const previousTypedWord = typedWords[previousIndex];
-        console.log("from previous random words: ", previousWord);
+        console.log("from previous words: ", previousWord);
         console.log("from previous typed words: ", previousTypedWord);
 
         if (!previousWord || previousTypedWord === undefined) return;
+
+        if (!currentWord) return;
 
         const isCorrect = previousWord === previousTypedWord;
         if (!isCorrect) {
@@ -68,6 +72,7 @@ export function useKeyboardEvent({
       // pressed space or tab key event
       if (e.key === " " || e.key === "Tab") {
         e.preventDefault();
+        setPreviousWords([...previousWords, randomWords[currentWordIndex]]);
 
         // const isCorrect = inputWord.trim() === randomWords[currentWordIndex];
         //
@@ -93,7 +98,6 @@ export function useKeyboardEvent({
             } else {
               copy.push(trimmedInput);
             }
-            console.log(copy[currentWordIndex]);
             console.log("typedWords after update:", copy);
             return copy;
           });
@@ -102,7 +106,7 @@ export function useKeyboardEvent({
           setCurrentWordIndex(currentWordIndex + 1);
           console.log(
             "now onto the next word: ",
-            randomWords[currentWordIndex],
+            randomWords[currentWordIndex + 1],
           );
         }
       }
@@ -116,6 +120,8 @@ export function useKeyboardEvent({
       setCurrentWordIndex,
       setTypedWords,
       setInputWord,
+      previousWords,
+      setPreviousWords,
     ],
   );
 
