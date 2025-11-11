@@ -80,6 +80,42 @@ export const Word = ({
           </span>
         );
       })}
+
+      {/* Render current overflow letters (if any) */}
+      {isCurrent && inputWord.length > word.length && (
+        <>
+          {inputWord
+            .slice(word.length)
+            .split("")
+            .map((extra, i) => (
+              <span
+                key={`overflow-${i}`}
+                className="text-red-500 opacity-70 inline-block px-[0.8px]"
+              >
+                {extra}
+              </span>
+            ))}
+        </>
+      )}
+
+      {/* Render typed overflow letters (if any) */}
+      {!isCurrent &&
+        wordIndex < currentWordIndex &&
+        typedWords[wordIndex].length > word.length && (
+          <>
+            {typedWords[wordIndex]
+              .slice(word.length)
+              .split("")
+              .map((extra, i) => (
+                <span
+                  key={`overflow-${i}`}
+                  className="text-red-500 opacity-70 inline-block px-[0.8px]"
+                >
+                  {extra}
+                </span>
+              ))}
+          </>
+        )}
     </div>
   );
 };
