@@ -10,7 +10,7 @@ function WordStatus({
   return (
     <div
       className={
-        "text-3xl text-gray-600 duration-200 transition-all " + className
+        "px-1 text-3xl text-gray-600 duration-200 transition-all " + className
       }
     >
       {typedWordsLength}/{randomWordsLength}
