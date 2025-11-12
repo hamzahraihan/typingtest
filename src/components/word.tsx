@@ -110,6 +110,7 @@ export const Word = ({
                 <span
                   key={`overflow-${i}`}
                   className="text-red-500 opacity-70 inline-block px-[0.8px]"
+                  data-letteroverflow={i}
                 >
                   {extra}
                 </span>
