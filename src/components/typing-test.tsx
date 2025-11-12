@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RandomWords } from "../utils/random-words.ts";
 import { Word } from "./word.tsx";
 import { useWordContext } from "../context/word-store-context.ts";
@@ -17,13 +17,27 @@ export const TypingTest = ({
   const inputWord = useWordContext((state) => state.inputWord);
   const setInputWord = useWordContext((state) => state.setInputWord);
   const currentWordIndex = useWordContext((state) => state.currentWordIndex);
-
-  const typedWords = useWordContext((state) => state.typedWords);
-
-  const randomWords = useMemo(
-    () => RandomWords.getRandomWords(30).join(" ").split(" "),
-    [],
+  const setCurrentWordIndex = useWordContext(
+    (state) => state.setCurrentWordIndex,
   );
+  const typedWords = useWordContext((state) => state.typedWords);
+  const setTypedWords = useWordContext((state) => state.setTypedWords);
+
+  const [randomWords, setRandomWords] = useState(() =>
+    RandomWords.getRandomWords(30).join(" ").split(" "),
+  );
+
+  const handleReloadTest = () => {
+    setRandomWords(RandomWords.getRandomWords(30).join(" ").split(" "));
+    setInputWord("");
+    setCurrentWordIndex(0);
+    setTypedWords([]);
+  };
+
+  // const randomWords = useMemo(
+  //   () => RandomWords.getRandomWords(30).join(" ").split(" "),
+  //   [],
+  // );
 
   const keyboardEvent = useKeyboardEvent({
     inputRef,
@@ -89,7 +103,7 @@ export const TypingTest = ({
           );
         })}
       </div>
-      <div className="self-center p-5">
+      <button onClick={handleReloadTest} className="self-center z-10 p-5">
         <ReloadIcon
           stroke="#9a9a9a"
           width={20}
@@ -97,7 +111,7 @@ export const TypingTest = ({
           fontWeight="10"
           className="text-gray-400"
         />
-      </div>
+      </button>
     </div>
   );
 };
