@@ -11,6 +11,9 @@ export const TypingTest = ({
 }: {
   inputRef: React.RefObject<HTMLInputElement | null>;
 }) => {
+  const [state, setState] = useState<"PLAY" | "IDLE" | "FINISHED">("IDLE");
+  console.log(state);
+
   const [isFocus, setIsFocus] = useState(false);
   const blurTimeoutRef = useRef<number | null>(0);
 
@@ -68,11 +71,15 @@ export const TypingTest = ({
         minLength={0}
         maxLength={20}
         onFocus={() => {
-          if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+          setState("PLAY");
+          if (blurTimeoutRef.current) {
+            clearTimeout(blurTimeoutRef.current);
+          }
           setIsFocus(true);
         }}
         onBlur={() => {
           blurTimeoutRef.current = setTimeout(() => {
+            setState("IDLE");
             setIsFocus(false);
           }, 1000);
         }}
