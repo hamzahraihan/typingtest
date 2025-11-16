@@ -8,7 +8,11 @@ export class SpeedResult {
     this.totalMinutes = totalMinutes;
   }
 
-  public calculateWpm(): number {
-    return this.totalWords / this.totalMinutes;
+  public result() {
+    return this.calculateWpm(this.totalWords, this.totalMinutes);
+  }
+
+  private calculateWpm(totalWords: number, totalMinutes: number) {
+    return totalWords / totalMinutes;
   }
 }
