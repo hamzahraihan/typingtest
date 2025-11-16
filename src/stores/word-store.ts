@@ -4,7 +4,6 @@ export type WordState = {
   inputWord: string;
   currentWordIndex: number;
   typedWords: string[];
-  previousWords: string[];
 };
 
 export type WordActions = {
@@ -13,7 +12,6 @@ export type WordActions = {
     updater: WordState["typedWords"] | ((prev: string[]) => string[]),
   ) => void;
   setCurrentWordIndex: (index: WordState["currentWordIndex"]) => void;
-  setPreviousWords: (previousWords: WordState["previousWords"]) => void;
 };
 
 export type WordStore = WordState & WordActions;
@@ -22,7 +20,6 @@ export const defaultInitState: WordState = {
   inputWord: "",
   currentWordIndex: 0,
   typedWords: [],
-  previousWords: [],
 };
 
 export const createWordStore = (initState: WordState = defaultInitState) => {
@@ -39,9 +36,5 @@ export const createWordStore = (initState: WordState = defaultInitState) => {
 
     setCurrentWordIndex: (currentIndex) =>
       set(() => ({ currentWordIndex: currentIndex })),
-
-    setPreviousWords: (prev: string[]) => {
-      set({ previousWords: prev });
-    },
   }));
 };
