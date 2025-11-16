@@ -17,21 +17,21 @@ export const TypingTest = ({
   const [isFocus, setIsFocus] = useState(false);
   const blurTimeoutRef = useRef<number | null>(0);
 
-  const inputWord = useWordContext((state) => state.inputWord);
-  const setInputWord = useWordContext((state) => state.setInputWord);
-  const currentWordIndex = useWordContext((state) => state.currentWordIndex);
-  const setCurrentWordIndex = useWordContext(
-    (state) => state.setCurrentWordIndex,
-  );
-  const typedWords = useWordContext((state) => state.typedWords);
-  const setTypedWords = useWordContext((state) => state.setTypedWords);
+  const {
+    inputWord,
+    setInputWord,
+    currentWordIndex,
+    setCurrentWordIndex,
+    typedWords,
+    setTypedWords,
+  } = useWordContext((state) => state);
 
   const [randomWords, setRandomWords] = useState(() =>
     RandomWords.getRandomWords(30).join(" ").split(" "),
   );
 
   const handleReloadTest = () => {
-    setRandomWords(RandomWords.getRandomWords(30).join(" ").split(" "));
+    setRandomWords(() => RandomWords.getRandomWords(30).join(" ").split(" "));
     setInputWord("");
     setCurrentWordIndex(0);
     setTypedWords([]);
