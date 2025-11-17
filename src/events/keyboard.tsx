@@ -107,7 +107,10 @@ export function useKeyboardEvent({
             } else {
               copy.push(trimmedInput);
             }
-            console.log("typedWords after update:", copy);
+            console.log(
+              "file: keyboard.tsx, line: 110,info: typedWords after update: ",
+              copy,
+            );
             return copy;
           });
 
