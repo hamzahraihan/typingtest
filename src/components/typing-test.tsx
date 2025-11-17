@@ -5,6 +5,8 @@ import { useWordContext } from "../context/word-store-context.ts";
 import { WordStatus } from "./stats.tsx";
 import { useKeyboardEvent } from "../events/keyboard.tsx";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { Timer } from "../utils/timer.ts";
+import { info } from "../utils/logger.ts";
 
 export const TypingTest = ({
   inputRef,
@@ -30,17 +32,14 @@ export const TypingTest = ({
     RandomWords.getRandomWords(30).join(" ").split(" "),
   );
 
+  const timeRef = useRef<Timer | null>(null);
+
   const handleReloadTest = () => {
     setRandomWords(() => RandomWords.getRandomWords(30).join(" ").split(" "));
     setInputWord("");
     setCurrentWordIndex(0);
     setTypedWords([]);
   };
-
-  // const randomWords = useMemo(
-  //   () => RandomWords.getRandomWords(30).join(" ").split(" "),
-  //   [],
-  // );
 
   const keyboardEvent = useKeyboardEvent({
     inputRef,
@@ -53,6 +52,27 @@ export const TypingTest = ({
       window.removeEventListener("keydown", keyboardEvent.onFocus);
     };
   }, [keyboardEvent, inputRef]);
+
+  useEffect(() => {
+    timeRef.current = new Timer("IDLE");
+  }, []);
+
+  useEffect(() => {
+    const timer = timeRef.current;
+
+    if (!timer) return;
+    if (state === "PLAY" && timer.state !== "PLAY") {
+      timer.start();
+      info("timer started: ", timer.startTime);
+    }
+    if (typedWords.length > 0 && typedWords.length === randomWords.length) {
+      if (timer.state !== "FINISHED") {
+        timer.stop();
+        setState("FINISHED");
+        info("timer stopped: ", timer.endTime);
+      }
+    }
+  }, [state, randomWords, typedWords]);
 
   return (
     <div className="flex flex-col relative">
