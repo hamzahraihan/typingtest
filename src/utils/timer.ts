@@ -1,7 +1,7 @@
 export class Timer {
   state: "PLAY" | "IDLE" | "FINISHED";
-  startTime: number | null = null;
-  endTime: number | null = null;
+  startTime: number = 0;
+  endTime: number = 0;
 
   constructor(initialState: "PLAY" | "IDLE" | "FINISHED" = "IDLE") {
     this.state = initialState;
