@@ -7,6 +7,7 @@ import { useKeyboardEvent } from "../events/keyboard.tsx";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Timer } from "../utils/timer.ts";
 import { info } from "../utils/logger.ts";
+import { SpeedResult } from "../utils/speed-result.ts";
 
 export const TypingTest = ({
   inputRef,
@@ -14,7 +15,7 @@ export const TypingTest = ({
   inputRef: React.RefObject<HTMLInputElement | null>;
 }) => {
   const [state, setState] = useState<"PLAY" | "IDLE" | "FINISHED">("IDLE");
-  console.log(state);
+  info("state: ", state);
 
   const [isFocus, setIsFocus] = useState(false);
   const blurTimeoutRef = useRef<number | null>(0);
@@ -26,19 +27,23 @@ export const TypingTest = ({
     setCurrentWordIndex,
     typedWords,
     setTypedWords,
+    setWpm,
   } = useWordContext((state) => state);
 
   const [randomWords, setRandomWords] = useState(() =>
     RandomWords.getRandomWords(30).join(" ").split(" "),
   );
 
-  const timeRef = useRef<Timer | null>(null);
+  const timerRef = useRef<Timer | null>(null);
 
   const handleReloadTest = () => {
     setRandomWords(() => RandomWords.getRandomWords(30).join(" ").split(" "));
     setInputWord("");
     setCurrentWordIndex(0);
     setTypedWords([]);
+    setState("IDLE");
+    timerRef.current = new Timer("IDLE");
+    setWpm(0);
   };
 
   const keyboardEvent = useKeyboardEvent({
@@ -54,11 +59,11 @@ export const TypingTest = ({
   }, [keyboardEvent, inputRef]);
 
   useEffect(() => {
-    timeRef.current = new Timer("IDLE");
+    timerRef.current = new Timer("IDLE");
   }, []);
 
   useEffect(() => {
-    const timer = timeRef.current;
+    const timer = timerRef.current;
 
     if (!timer) return;
     if (state === "PLAY" && timer.state !== "PLAY") {
@@ -69,10 +74,17 @@ export const TypingTest = ({
       if (timer.state !== "FINISHED") {
         timer.stop();
         setState("FINISHED");
+        setWpm(
+          new SpeedResult(
+            typedWords.length,
+            timer.startTime,
+            timer.endTime,
+          ).result(),
+        );
         info("timer stopped: ", timer.endTime);
       }
     }
-  }, [state, randomWords, typedWords]);
+  }, [state, randomWords, typedWords, setWpm]);
 
   return (
     <div className="flex flex-col relative">
