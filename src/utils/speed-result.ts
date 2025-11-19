@@ -1,15 +1,25 @@
 export class SpeedResult {
   // WPM = (Total Words) / (Total Minutes)
   totalWords: number;
-  totalMinutes: number;
+  startTime: number;
+  endTime: number;
 
-  constructor(totalWords: number, totalMinutes: number) {
+  constructor(
+    totalWords: number = 0,
+    initialStartTime: number = 0,
+    initialEndTime: number = 0,
+  ) {
     this.totalWords = totalWords;
-    this.totalMinutes = totalMinutes;
+    this.startTime = initialStartTime;
+    this.endTime = initialEndTime;
   }
 
   public result() {
-    return this.calculateWpm(this.totalWords, this.totalMinutes);
+    return this.calculateWpm(this.totalWords, this.timeElapsedMs() / 60000);
+  }
+
+  private timeElapsedMs() {
+    return this.endTime - this.startTime;
   }
 
   private calculateWpm(totalWords: number, totalMinutes: number) {
