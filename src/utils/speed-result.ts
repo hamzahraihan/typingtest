@@ -1,28 +1,23 @@
+import { Timer } from "./timer.ts";
+
 export class SpeedResult {
   // WPM = (Total Words) / (Total Minutes)
-  totalWords: number;
-  startTime: number;
-  endTime: number;
+  totalCharacters: number;
+  timer: Timer;
 
-  constructor(
-    totalWords: number = 0,
-    initialStartTime: number = 0,
-    initialEndTime: number = 0,
-  ) {
-    this.totalWords = totalWords;
-    this.startTime = initialStartTime;
-    this.endTime = initialEndTime;
+  constructor(initialTotalCharacters: number = 0, timer: Timer) {
+    this.totalCharacters = initialTotalCharacters;
+    this.timer = timer;
   }
 
   public result() {
-    return this.calculateWpm(this.totalWords, this.timeElapsedMs() / 60000);
-  }
+    const timeInSeconds = this.timer.getElapsedSeconds();
+    if (timeInSeconds <= 0) return 0;
 
-  private timeElapsedMs() {
-    return this.endTime - this.startTime;
-  }
+    // add 30 characters for spaces since the typed word does not input spaces
+    const wordsTyped = (this.totalCharacters + 30) / 5;
+    const wpm = (wordsTyped / timeInSeconds) * 60; // normalize to 1 minute
 
-  private calculateWpm(totalWords: number, totalMinutes: number) {
-    return totalWords / totalMinutes;
+    return Number(wpm.toFixed(2));
   }
 }
