@@ -66,21 +66,17 @@ export const TypingTest = ({
     const timer = timerRef.current;
 
     if (!timer) return;
+
     if (state === "PLAY" && timer.state !== "PLAY") {
       timer.start();
       info("timer started: ", timer.startTime);
     }
-    if (typedWords.length > 0 && typedWords.length === randomWords.length) {
+
+    if (typedWords.length === randomWords.length) {
       if (timer.state !== "FINISHED") {
         timer.stop();
         setState("FINISHED");
-        setWpm(
-          new SpeedResult(
-            typedWords.length,
-            timer.startTime,
-            timer.endTime,
-          ).result(),
-        );
+        setWpm(new SpeedResult(typedWords.join("").length, timer).result());
         info("timer stopped: ", timer.endTime);
       }
     }
@@ -103,15 +99,17 @@ export const TypingTest = ({
         minLength={0}
         maxLength={20}
         onFocus={() => {
-          setState("PLAY");
+          if (state === "IDLE") setState("PLAY");
+
           if (blurTimeoutRef.current) {
             clearTimeout(blurTimeoutRef.current);
           }
+
           setIsFocus(true);
         }}
         onBlur={() => {
           blurTimeoutRef.current = setTimeout(() => {
-            setState("IDLE");
+            if (state === "FINISHED") return;
             setIsFocus(false);
           }, 1000);
         }}
