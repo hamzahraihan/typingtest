@@ -20,4 +20,20 @@ export class Timer {
       this.state = "FINISHED";
     }
   }
+
+  public reset() {
+    this.state = "IDLE";
+    this.startTime = 0;
+    this.endTime = 0;
+  }
+
+  public getElapsedSeconds() {
+    if (this.state === "PLAY") {
+      return (performance.now() - this.startTime) / 1000;
+    }
+    if (this.state === "FINISHED") {
+      return (this.endTime - this.startTime) / 1000;
+    }
+    return 0;
+  }
 }
