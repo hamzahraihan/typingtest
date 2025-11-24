@@ -28,11 +28,10 @@ export const TypingTest = ({
     typedWords,
     setTypedWords,
     setWpm,
+    difficulty,
   } = useWordContext((state) => state);
 
-  const [randomWords, setRandomWords] = useState(() =>
-    RandomWords.getRandomWords(30).join(" ").split(" "),
-  );
+  const [randomWords, setRandomWords] = useState<string[]>([]);
 
   const timerRef = useRef<Timer | null>(null);
 
@@ -52,6 +51,15 @@ export const TypingTest = ({
   });
 
   useEffect(() => {
+    const words = RandomWords.setDifficulty(difficulty)
+      .getRandomWords(30)
+      .join(" ")
+      .split(" ");
+
+    setRandomWords(words);
+  }, [difficulty]);
+
+  useEffect(() => {
     window.addEventListener("keydown", keyboardEvent.onFocus);
     return () => {
       window.removeEventListener("keydown", keyboardEvent.onFocus);
@@ -64,23 +72,37 @@ export const TypingTest = ({
 
   useEffect(() => {
     const timer = timerRef.current;
-
     if (!timer) return;
 
+    // START timer when entering PLAY
     if (state === "PLAY" && timer.state !== "PLAY") {
       timer.start();
-      info("timer started: ", timer.startTime);
+      info("timer started:", timer.startTime);
     }
 
-    if (typedWords.length === randomWords.length) {
+    // FINISH when all words typed
+    const allWordsTyped =
+      typedWords.length === randomWords.length && typedWords.length > 0;
+
+    if (state === "PLAY" && allWordsTyped) {
       if (timer.state !== "FINISHED") {
         timer.stop();
         setState("FINISHED");
-        setWpm(new SpeedResult(typedWords.join("").length, timer).result());
-        info("timer stopped: ", timer.endTime);
+
+        const correctTypedChars = typedWords.filter(
+          (typed, i) => typed === randomWords[i],
+        ).length;
+
+        console.log(correctTypedChars);
+
+        const wpm = new SpeedResult(correctTypedChars, timer).result();
+
+        setWpm(wpm);
+
+        info("timer stopped:", timer.endTime);
       }
     }
-  }, [state, randomWords, typedWords, setWpm]);
+  }, [state, typedWords]);
 
   return (
     <div className="flex flex-col relative">
