@@ -1,52 +1,56 @@
-import englishWords from "../../static/words.json" with { type: "json" };
+import easy from "../../static/english/easy.json" with { type: "json" };
+import medium from "../../static/english/medium.json" with { type: "json" };
+import hard from "../../static/english/hard.json" with { type: "json" };
+import type { Difficulty } from "./difficulty.ts";
 
 // create a random words based on words.json
 export class RandomWords {
-  private static _instance: RandomWords;
+  private static _instance: RandomWords | null = null;
   private static randomWords: string[] = [];
-  private static words: string[] = englishWords.words;
+  private static difficulty: Difficulty = "EASY";
 
   private constructor() {}
 
   public static get instance(): RandomWords {
-    if (!RandomWords._instance) {
-      RandomWords._instance = new RandomWords();
+    if (!this._instance) {
+      this._instance = new RandomWords();
     }
 
-    return RandomWords._instance;
+    return this._instance;
   }
 
-  public static getRandomWords(totalWords: number) {
-    // checking performance of generating random words
+  public static setDifficulty(difficulty: Difficulty = "EASY") {
+    this.difficulty = difficulty;
+    console.log(this.difficulty);
+    return this;
+  }
+
+  public static getRandomWords(totalWords: number): string[] {
     const s = performance.now();
 
-    this.generateRandomWords(totalWords);
+    const map = {
+      EASY: easy.words,
+      MEDIUM: medium.words,
+      HARD: hard.words,
+    };
+
+    const words = map[this.getDifficulty()];
+    const result = this.generateRandomWords(words, totalWords);
 
     const e = performance.now();
+    console.log(`randomizing words took ${e - s} ms.`);
 
-    console.log(`randomizing words took ${e - s} milliseconds.`);
-    return this.randomWords;
+    return result;
   }
 
-  private static generateRandomWords(totalWords: number) {
-    // const words = [...this.words];
+  private static getDifficulty() {
+    return this.difficulty;
+  }
 
-    const shuffled = [...this.words].sort(() => Math.random() - 0.5);
+  private static generateRandomWords(words: string[], totalWords: number) {
+    const shuffled = [...words].sort(() => Math.random() - 0.5);
     this.randomWords = shuffled.slice(0, totalWords);
-
-    // for (let i = this.words.length - 1; i > 0; i--) {
-    //   const j = Math.floor(Math.random() * i + 1);
-    //   [words[i], words[j]] = [words[j], words[i]];
-    // }
-    // this.randomWords = words.slice(0, 10);
-
-    // for (let i = 0; i < 10; i++) {
-    //   const randomizer = Math.floor(
-    //     Math.random() * (this.words.length - i + 1) + i,
-    //   );
-    //   console.log(randomizer);
-    //   this.randomWords.push(this.words[randomizer]);
-    // }
+    return this.randomWords;
   }
 }
 
