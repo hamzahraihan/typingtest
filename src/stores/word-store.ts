@@ -1,10 +1,12 @@
 import { createStore } from "zustand";
+import type { Difficulty } from "../utils/difficulty.ts";
 
 export type WordState = {
   inputWord: string;
   currentWordIndex: number;
   typedWords: string[];
   wpm: number;
+  difficulty: Difficulty;
 };
 
 export type WordActions = {
@@ -14,6 +16,7 @@ export type WordActions = {
   ) => void;
   setCurrentWordIndex: (index: WordState["currentWordIndex"]) => void;
   setWpm: (number: WordState["wpm"]) => void;
+  setDifficulty: (diff: WordState["difficulty"]) => void;
 };
 
 export type WordStore = WordState & WordActions;
@@ -23,6 +26,7 @@ export const defaultInitState: WordState = {
   currentWordIndex: 0,
   typedWords: [],
   wpm: 0,
+  difficulty: "EASY",
 };
 
 export const createWordStore = (initState: WordState = defaultInitState) => {
@@ -41,5 +45,7 @@ export const createWordStore = (initState: WordState = defaultInitState) => {
       set(() => ({ currentWordIndex: currentIndex })),
 
     setWpm: (number) => set({ wpm: number }),
+
+    setDifficulty: (diff) => set({ difficulty: diff }),
   }));
 };
