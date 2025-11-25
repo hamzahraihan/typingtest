@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { RandomWords } from "../utils/random-words.ts";
 import { Word } from "./word.tsx";
 import { useWordContext } from "../context/word-store-context.ts";
@@ -15,33 +15,38 @@ export const TypingTest = ({
   inputRef: React.RefObject<HTMLInputElement | null>;
 }) => {
   const [state, setState] = useState<"PLAY" | "IDLE" | "FINISHED">("IDLE");
+
+  const handleState = useCallback((value: "PLAY" | "IDLE" | "FINISHED") => {
+    setState(value);
+  }, []);
   info("state: ", state);
 
   const [isFocus, setIsFocus] = useState(false);
   const blurTimeoutRef = useRef<number | null>(0);
 
-  const {
-    inputWord,
-    setInputWord,
-    currentWordIndex,
-    setCurrentWordIndex,
-    typedWords,
-    setTypedWords,
-    setWpm,
-    difficulty,
-  } = useWordContext((state) => state);
+  const inputWord = useWordContext((state) => state.inputWord);
+  const setInputWord = useWordContext((state) => state.setInputWord);
+  const currentWordIndex = useWordContext((state) => state.currentWordIndex);
+  const setCurrentWordIndex = useWordContext(
+    (state) => state.setCurrentWordIndex,
+  );
+  const typedWords = useWordContext((state) => state.typedWords);
+  const setTypedWords = useWordContext((state) => state.setTypedWords);
+  const setWpm = useWordContext((state) => state.setWpm);
+  const difficulty = useWordContext((state) => state.difficulty);
 
   const [randomWords, setRandomWords] = useState<string[]>([]);
 
   const timerRef = useRef<Timer | null>(null);
+  const timer = timerRef.current;
 
   const handleReloadTest = () => {
     setRandomWords(() => RandomWords.getRandomWords(30).join(" ").split(" "));
     setInputWord("");
     setCurrentWordIndex(0);
     setTypedWords([]);
-    setState("IDLE");
-    timerRef.current = new Timer("IDLE");
+    handleState("IDLE");
+    timer?.reset();
     setWpm(0);
   };
 
@@ -55,23 +60,38 @@ export const TypingTest = ({
       .getRandomWords(30)
       .join(" ")
       .split(" ");
-
-    setRandomWords(words);
-  }, [difficulty]);
+    const changeDifficult = () => {
+      setRandomWords(words);
+      setInputWord("");
+      setCurrentWordIndex(0);
+      setTypedWords([]);
+      handleState("IDLE");
+      timer?.reset();
+      setWpm(0);
+    };
+    changeDifficult();
+  }, [
+    difficulty,
+    setCurrentWordIndex,
+    setInputWord,
+    setTypedWords,
+    setWpm,
+    handleState,
+    timer,
+  ]);
 
   useEffect(() => {
     window.addEventListener("keydown", keyboardEvent.onFocus);
     return () => {
       window.removeEventListener("keydown", keyboardEvent.onFocus);
     };
-  }, [keyboardEvent, inputRef]);
+  }, [keyboardEvent.onFocus]);
 
   useEffect(() => {
     timerRef.current = new Timer("IDLE");
   }, []);
 
   useEffect(() => {
-    const timer = timerRef.current;
     if (!timer) return;
 
     // START timer when entering PLAY
@@ -87,7 +107,7 @@ export const TypingTest = ({
     if (state === "PLAY" && allWordsTyped) {
       if (timer.state !== "FINISHED") {
         timer.stop();
-        setState("FINISHED");
+        handleState("FINISHED");
 
         const correctTypedChars = typedWords.filter(
           (typed, i) => typed === randomWords[i],
@@ -102,7 +122,7 @@ export const TypingTest = ({
         info("timer stopped:", timer.endTime);
       }
     }
-  }, [state, typedWords]);
+  }, [state, typedWords, timer, handleState, randomWords, setWpm]);
 
   return (
     <div className="flex flex-col relative">
@@ -121,7 +141,7 @@ export const TypingTest = ({
         minLength={0}
         maxLength={20}
         onFocus={() => {
-          if (state === "IDLE") setState("PLAY");
+          if (state === "IDLE") handleState("PLAY");
 
           if (blurTimeoutRef.current) {
             clearTimeout(blurTimeoutRef.current);
@@ -145,7 +165,7 @@ export const TypingTest = ({
       />
       <div
         id="letter"
-        className={`${isFocus ? "blur-0" : "blur-sm"} duration-100 flex flex-wrap`}
+        className={`${isFocus ? "blur-0" : "blur-sm"} max-h-32 overflow-hidden duration-100 flex flex-wrap`}
       >
         {randomWords.map((word, i) => {
           const isCurrent = i === currentWordIndex;
