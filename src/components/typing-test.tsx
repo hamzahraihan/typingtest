@@ -19,9 +19,10 @@ export const TypingTest = ({
   const handleState = useCallback((value: "PLAY" | "IDLE" | "FINISHED") => {
     setState(value);
   }, []);
+
   info("state: ", state);
 
-  const [isFocus, setIsFocus] = useState(false);
+  const [isFocus, setIsFocus] = useState(true);
   const blurTimeoutRef = useRef<number | null>(0);
 
   const inputWord = useWordContext((state) => state.inputWord);
@@ -52,11 +53,6 @@ export const TypingTest = ({
     setWpm(0);
   };
 
-  const keyboardEvent = useKeyboardEvent({
-    inputRef,
-    randomWords,
-  });
-
   useEffect(() => {
     const words = RandomWords.setDifficulty(difficulty)
       .getRandomWords(30)
@@ -81,6 +77,11 @@ export const TypingTest = ({
     handleState,
     timer,
   ]);
+
+  const keyboardEvent = useKeyboardEvent({
+    inputRef,
+    randomWords,
+  });
 
   useEffect(() => {
     window.addEventListener("keydown", keyboardEvent.onFocus);
@@ -147,13 +148,15 @@ export const TypingTest = ({
         className="h-full w-full z-10 opacity-0 absolute"
         minLength={0}
         maxLength={20}
-        onFocus={() => {
+        onKeyDown={() => {
           if (state === "IDLE") handleState("PLAY");
+        }}
+        onFocus={() => {
+          // if (state === "IDLE") handleState("PLAY");
 
           if (blurTimeoutRef.current) {
             clearTimeout(blurTimeoutRef.current);
           }
-
           setIsFocus(true);
         }}
         onBlur={() => {
