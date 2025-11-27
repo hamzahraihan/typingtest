@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback, type RefObject } from "react";
 import { useWordContext } from "../context/word-store-context.ts";
 import { info } from "../utils/logger.ts";
 
@@ -6,7 +6,7 @@ export function useKeyboardEvent({
   inputRef,
   randomWords,
 }: {
-  inputRef: React.RefObject<HTMLInputElement | null>;
+  inputRef: RefObject<HTMLInputElement | null>;
   randomWords: string[];
 }) {
   // const inputWord = useWordContext((state) => state.inputWord);
