@@ -1,25 +1,23 @@
-import { useLayoutEffect, useState } from "react";
+import { forwardRef, useLayoutEffect, useState } from "react";
 
-export const Word = ({
-  word,
-  isCurrent,
-  inputWord,
-  typedWords,
-  currentWordIndex,
-  wordIndex,
-}: {
+type Props = {
   word: string;
   isCurrent: boolean;
   inputWord: string;
   typedWords: string[];
   currentWordIndex: number;
   wordIndex: number;
-}) => {
+};
+
+export const Word = forwardRef<HTMLDivElement, Props>(function Word(
+  { word, isCurrent, inputWord, typedWords, currentWordIndex, wordIndex },
+  ref,
+) {
   const [caretIndex, setCaretIndex] = useState<number>(0);
 
   useLayoutEffect(() => {
     setCaretIndex(inputWord.length);
-  }, [inputWord]);
+  }, [inputWord.length]);
 
   const wordChecker = (): "error" | "active" | "typed" | "" => {
     if (typedWords[wordIndex] == word) {
@@ -35,7 +33,7 @@ export const Word = ({
   };
 
   return (
-    <div className={"m-1 text-3xl " + wordChecker()}>
+    <div className={"scroll-mt-9 m-1 text-3xl " + wordChecker()} ref={ref}>
       {word.split("").map((letter, j) => {
         let className = "";
         // if user input a correct letter, the color change to black
@@ -119,4 +117,4 @@ export const Word = ({
         )}
     </div>
   );
-};
+});
