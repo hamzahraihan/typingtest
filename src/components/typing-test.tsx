@@ -40,6 +40,8 @@ export const TypingTest = ({
   const timerRef = useRef<Timer | null>(null);
   const timer = timerRef.current;
 
+  const wordRef = useRef<HTMLDivElement | null>(null);
+
   const handleReloadTest = () => {
     setRandomWords(() => RandomWords.getRandomWords(30).join(" ").split(" "));
     setInputWord("");
@@ -124,6 +126,11 @@ export const TypingTest = ({
     }
   }, [state, typedWords, timer, handleState, randomWords, setWpm]);
 
+  useEffect(() => {
+    const wordCurrent = document.querySelector(".active");
+    wordCurrent?.scrollIntoView();
+  }, [typedWords, randomWords, currentWordIndex]);
+
   return (
     <div className="flex flex-col relative">
       {!isFocus && (
@@ -178,6 +185,7 @@ export const TypingTest = ({
               currentWordIndex={currentWordIndex}
               inputWord={inputWord}
               typedWords={typedWords}
+              ref={wordRef}
             />
           );
         })}
