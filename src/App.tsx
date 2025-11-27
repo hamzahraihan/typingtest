@@ -6,7 +6,7 @@ import { difficulties, type Difficulty } from "./utils/difficulty.ts";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 function App() {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const { setDifficulty } = useWordContext((state) => state);
 
   return (
@@ -31,12 +31,15 @@ function App() {
         </div>
         <footer className="flex flex-col">
           <div className="flex mt-auto">
-            <div className="flex text-gray-500 items-center gap-2">
+            <div className="flex text-gray-500 items-center gap-1">
               <span>
                 <GitHubLogoIcon />
               </span>
-              <a className="text-xs" href="https://github.com/hamzahraihan">
-                hamzahraihan
+              <a
+                className="text-center text-xs"
+                href="https://github.com/hamzahraihan/typingtest"
+              >
+                github
               </a>
             </div>
           </div>
