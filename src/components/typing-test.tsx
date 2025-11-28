@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { RandomWords } from "../utils/random-words.ts";
 import { Word } from "./word.tsx";
 import { useWordContext } from "../context/word-store-context.ts";
-import { WordStatus } from "./stats.tsx";
+import { WordScore } from "./score.tsx";
 import { useKeyboardEvent } from "../events/keyboard.tsx";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Timer } from "../utils/timer.ts";
@@ -152,8 +152,6 @@ export const TypingTest = ({
           if (state === "IDLE") handleState("PLAY");
         }}
         onFocus={() => {
-          // if (state === "IDLE") handleState("PLAY");
-
           if (blurTimeoutRef.current) {
             clearTimeout(blurTimeoutRef.current);
           }
@@ -168,7 +166,7 @@ export const TypingTest = ({
         autoComplete="off"
       />
       <div className="absolute hidden">{inputWord}</div>
-      <WordStatus
+      <WordScore
         typedWordsLength={typedWords.length}
         randomWordsLength={randomWords.length}
         className={isFocus ? "opacity-100" : "opacity-0"}
