@@ -101,6 +101,8 @@ export function useKeyboardEvent({
         if (inputWord.length > 0) {
           setTypedWords((prev) => {
             const copy = [...prev];
+            if (copy.length == randomWords.length) return copy;
+
             if (currentWordIndex < copy.length) {
               copy[currentWordIndex - 1] =
                 copy[currentWordIndex - 1] + trimmedInput;
