@@ -30,13 +30,13 @@ function App() {
           <TypingTest inputRef={inputRef} />
         </div>
         <footer className="flex flex-col">
-          <div className="flex mt-auto">
-            <div className="flex text-gray-500 items-center gap-1">
+          <div className=" flex mt-auto">
+            <div className="flex p-1 hover:opacity-50 text-gray-500 items-center gap-1 duration-100">
               <span>
                 <GitHubLogoIcon />
               </span>
               <a
-                className="text-center text-xs"
+                className="leading-none tracking-tight text-sm"
                 href="https://github.com/hamzahraihan/typingtest"
               >
                 github
