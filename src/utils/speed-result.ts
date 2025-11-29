@@ -17,4 +17,12 @@ export class SpeedResult {
     const wpm = (this.correctWords / timeInSeconds) * 60;
     return Number(wpm.toFixed(2));
   }
+
+  public raw() {
+    // TODO: raw wpm result
+  }
+
+  public accuracy() {
+    // TODO: accuracy of typed words
+  }
 }
