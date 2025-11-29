@@ -1,10 +1,17 @@
 export class Timer {
-  state: "PLAY" | "IDLE" | "FINISHED";
+  private static _instance: Timer | null = null;
+  state: "PLAY" | "IDLE" | "FINISHED" = "IDLE";
   startTime: number = 0;
   endTime: number = 0;
 
-  constructor(initialState: "PLAY" | "IDLE" | "FINISHED" = "IDLE") {
-    this.state = initialState;
+  private constructor() {}
+
+  public static get instance(): Timer {
+    if (!this._instance) {
+      this._instance = new Timer();
+    }
+
+    return this._instance;
   }
 
   public start() {
