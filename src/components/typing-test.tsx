@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RandomWords } from "../utils/random-words.ts";
 import { Word } from "./word.tsx";
 import { useWordContext } from "../context/word-store-context.ts";
-import { WordScore } from "./score.tsx";
+import { Counter } from "./counter.tsx";
 import { useKeyboardEvent } from "../events/keyboard.tsx";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Timer } from "../utils/timer.ts";
@@ -14,14 +14,6 @@ export const TypingTest = ({
 }: {
   inputRef: React.RefObject<HTMLInputElement | null>;
 }) => {
-  const [state, setState] = useState<"PLAY" | "IDLE" | "FINISHED">("IDLE");
-
-  const handleState = useCallback((value: "PLAY" | "IDLE" | "FINISHED") => {
-    setState(value);
-  }, []);
-
-  info("state: ", state);
-
   const [isFocus, setIsFocus] = useState(true);
   const blurTimeoutRef = useRef<number | null>(0);
 
@@ -35,11 +27,13 @@ export const TypingTest = ({
   const setTypedWords = useWordContext((state) => state.setTypedWords);
   const setWpm = useWordContext((state) => state.setWpm);
   const difficulty = useWordContext((state) => state.difficulty);
+  const state = useWordContext((state) => state.state);
+  const setState = useWordContext((state) => state.setState);
+  info("state: ", state);
 
   const [randomWords, setRandomWords] = useState<string[]>([]);
 
-  const timerRef = useRef<Timer | null>(null);
-  const timer = timerRef.current;
+  const timer = Timer.instance;
 
   const wordRef = useRef<HTMLDivElement | null>(null);
 
@@ -48,7 +42,7 @@ export const TypingTest = ({
     setInputWord("");
     setCurrentWordIndex(0);
     setTypedWords([]);
-    handleState("IDLE");
+    setState("IDLE");
     timer?.reset();
     setWpm(0);
   };
@@ -63,7 +57,7 @@ export const TypingTest = ({
       setInputWord("");
       setCurrentWordIndex(0);
       setTypedWords([]);
-      handleState("IDLE");
+      setState("IDLE");
       timer?.reset();
       setWpm(0);
     };
@@ -74,7 +68,7 @@ export const TypingTest = ({
     setInputWord,
     setTypedWords,
     setWpm,
-    handleState,
+    setState,
     timer,
   ]);
 
@@ -91,14 +85,10 @@ export const TypingTest = ({
   }, [keyboardEvent.onFocus]);
 
   useEffect(() => {
-    timerRef.current = new Timer("IDLE");
-  }, []);
-
-  useEffect(() => {
     if (!timer) return;
 
     // START timer when entering PLAY
-    if (state === "PLAY" && timer.state !== "PLAY") {
+    if (state === "PLAYING" && timer.state !== "PLAY") {
       timer.start();
       info("timer started:", timer.startTime);
     }
@@ -107,10 +97,10 @@ export const TypingTest = ({
     const allWordsTyped =
       typedWords.length === randomWords.length && typedWords.length > 0;
 
-    if (state === "PLAY" && allWordsTyped) {
+    if (state === "PLAYING" && allWordsTyped) {
       if (timer.state !== "FINISHED") {
         timer.stop();
-        handleState("FINISHED");
+        setState("FINISHED");
 
         const correctTypedChars = typedWords.filter(
           (typed, i) => typed === randomWords[i],
@@ -125,7 +115,7 @@ export const TypingTest = ({
         info("timer stopped:", timer.endTime);
       }
     }
-  }, [state, typedWords, timer, handleState, randomWords, setWpm]);
+  }, [state, setState, typedWords, timer, randomWords, setWpm]);
 
   useEffect(() => {
     const wordCurrent = document.querySelector(".active");
@@ -149,7 +139,7 @@ export const TypingTest = ({
         minLength={0}
         maxLength={20}
         onKeyDown={() => {
-          if (state === "IDLE") handleState("PLAY");
+          if (state === "IDLE") setState("PLAYING");
         }}
         onFocus={() => {
           if (blurTimeoutRef.current) {
@@ -166,7 +156,7 @@ export const TypingTest = ({
         autoComplete="off"
       />
       <div className="absolute hidden">{inputWord}</div>
-      <WordScore
+      <Counter
         typedWordsLength={typedWords.length}
         randomWordsLength={randomWords.length}
         className={isFocus ? "opacity-100" : "opacity-0"}
