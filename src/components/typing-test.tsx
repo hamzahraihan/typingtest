@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { RandomWords } from "../utils/random-words.ts";
 import { Word } from "./word.tsx";
 import { useWordContext } from "../context/word-store-context.ts";
@@ -25,7 +25,7 @@ export const TypingTest = ({
   );
   const typedWords = useWordContext((state) => state.typedWords);
   const setTypedWords = useWordContext((state) => state.setTypedWords);
-  const setWpm = useWordContext((state) => state.setWpm);
+  const setResult = useWordContext((state) => state.setResult);
   const difficulty = useWordContext((state) => state.difficulty);
   const state = useWordContext((state) => state.state);
   const setState = useWordContext((state) => state.setState);
@@ -37,40 +37,51 @@ export const TypingTest = ({
 
   const wordRef = useRef<HTMLDivElement | null>(null);
 
-  const handleReloadTest = () => {
-    setRandomWords(() => RandomWords.getRandomWords(30).join(" ").split(" "));
-    setInputWord("");
-    setCurrentWordIndex(0);
-    setTypedWords([]);
-    setState("IDLE");
-    timer?.reset();
-    setWpm(0);
-  };
+  const handleReloadTest = useCallback(
+    (
+      words: string[] = RandomWords.setDifficulty(difficulty)
+        .getRandomWords(30)
+        .join(" ")
+        .split(" "),
+    ) => {
+      setRandomWords(() => words);
+      setInputWord("");
+      setCurrentWordIndex(0);
+      setTypedWords([]);
+      setState("IDLE");
+      timer?.reset();
+      setResult({ wpm: 0, raw: 0, acc: 0 });
+    },
+    [
+      difficulty,
+      setCurrentWordIndex,
+      setInputWord,
+      setTypedWords,
+      setResult,
+      setState,
+      timer,
+    ],
+  );
 
   useEffect(() => {
     const words = RandomWords.setDifficulty(difficulty)
       .getRandomWords(30)
       .join(" ")
       .split(" ");
-    const changeDifficult = () => {
-      setRandomWords(words);
-      setInputWord("");
-      setCurrentWordIndex(0);
-      setTypedWords([]);
-      setState("IDLE");
-      timer?.reset();
-      setWpm(0);
-    };
-    changeDifficult();
-  }, [
-    difficulty,
-    setCurrentWordIndex,
-    setInputWord,
-    setTypedWords,
-    setWpm,
-    setState,
-    timer,
-  ]);
+
+    handleReloadTest(words);
+
+    // const changeDifficult = () => {
+    //   setRandomWords(words);
+    //   setInputWord("");
+    //   setCurrentWordIndex(0);
+    //   setTypedWords([]);
+    //   setState("IDLE");
+    //   timer?.reset();
+    //   setResult({ wpm: 0, raw: 0, acc: 0 });
+    // };
+    // changeDifficult();
+  }, [difficulty, handleReloadTest]);
 
   const keyboardEvent = useKeyboardEvent({
     inputRef,
@@ -102,20 +113,14 @@ export const TypingTest = ({
         timer.stop();
         setState("FINISHED");
 
-        const correctTypedChars = typedWords.filter(
-          (typed, i) => typed === randomWords[i],
-        ).length;
+        const result = new SpeedResult(typedWords, randomWords).compute();
 
-        console.log(correctTypedChars);
-
-        const wpm = new SpeedResult(correctTypedChars, timer).result();
-
-        setWpm(wpm);
+        setResult({ wpm: result.wpm, raw: result.raw, acc: result.acc });
 
         info("timer stopped:", timer.endTime);
       }
     }
-  }, [state, setState, typedWords, timer, randomWords, setWpm]);
+  }, [state, setState, typedWords, timer, randomWords, setResult]);
 
   useEffect(() => {
     const wordCurrent = document.querySelector(".active");
@@ -181,7 +186,10 @@ export const TypingTest = ({
           );
         })}
       </div>
-      <button onClick={handleReloadTest} className="self-center z-10 p-5">
+      <button
+        onClick={() => handleReloadTest()}
+        className="self-center z-10 p-5"
+      >
         <ReloadIcon
           stroke="#9a9a9a"
           width={20}
