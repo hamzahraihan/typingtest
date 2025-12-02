@@ -5,14 +5,14 @@ import { Timer } from "../utils/timer.ts";
 import { ReloadIcon } from "@radix-ui/react-icons";
 
 export default function Result({ className }: { className: string }) {
-  const wpm = useWordContext((state) => state.wpm);
+  const { wpm, raw, acc } = useWordContext((state) => state.result);
 
   const setInputWord = useWordContext((state) => state.setInputWord);
   const setCurrentWordIndex = useWordContext(
     (state) => state.setCurrentWordIndex,
   );
   const setTypedWords = useWordContext((state) => state.setTypedWords);
-  const setWpm = useWordContext((state) => state.setWpm);
+  const setResult = useWordContext((state) => state.setResult);
   const setState = useWordContext((state) => state.setState);
   const setRandomWords = useWordContext((state) => state.setRandomWords);
 
@@ -25,14 +25,14 @@ export default function Result({ className }: { className: string }) {
     setTypedWords([]);
     setState("IDLE");
     timer?.reset();
-    setWpm(0);
+    setResult({ wpm: 0, raw: 0, acc: 0 });
   };
 
   return (
     <div className={"flex flex-col gap-2 " + className}>
       <Status>WPM: {wpm.toFixed(0)}</Status>
-      <Status>RAW: {wpm.toFixed(0)}</Status>
-      <Status>Acc: {wpm.toFixed(0)}</Status>
+      <Status>RAW: {raw.toFixed(0)}</Status>
+      <Status>Acc: {acc.toFixed(0)}%</Status>
       <button
         className="text-sm hover:bg-opacity-50 rounded-lg p-1 bg-[#313244] flex justify-center items-center gap-1 w-fit duration-75"
         onClick={handleReloadTest}
