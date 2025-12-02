@@ -6,7 +6,11 @@ export type WordState = {
   inputWord: string;
   currentWordIndex: number;
   typedWords: string[];
-  wpm: number;
+  result: {
+    wpm: number;
+    raw: number;
+    acc: number;
+  };
   difficulty: Difficulty;
   state: "IDLE" | "PLAYING" | "FINISHED";
 };
@@ -18,7 +22,7 @@ export type WordActions = {
     updater: WordState["typedWords"] | ((prev: string[]) => string[]),
   ) => void;
   setCurrentWordIndex: (index: WordState["currentWordIndex"]) => void;
-  setWpm: (number: WordState["wpm"]) => void;
+  setResult: (number: WordState["result"]) => void;
   setDifficulty: (diff: WordState["difficulty"]) => void;
   setState: (diff: WordState["state"]) => void;
 };
@@ -30,7 +34,11 @@ export const defaultInitState: WordState = {
   inputWord: "",
   currentWordIndex: 0,
   typedWords: [],
-  wpm: 0,
+  result: {
+    wpm: 0,
+    raw: 0,
+    acc: 0,
+  },
   difficulty: "EASY",
   state: "IDLE",
 };
@@ -52,7 +60,8 @@ export const createWordStore = (initState: WordState = defaultInitState) => {
     setCurrentWordIndex: (currentIndex) =>
       set(() => ({ currentWordIndex: currentIndex })),
 
-    setWpm: (number) => set({ wpm: number }),
+    setResult: ({ wpm, raw, acc }) =>
+      set({ result: { wpm: wpm, raw: raw, acc: acc } }),
 
     setDifficulty: (diff) => set({ difficulty: diff }),
 
