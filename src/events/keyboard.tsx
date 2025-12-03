@@ -9,18 +9,6 @@ export function useKeyboardEvent({
   inputRef: RefObject<HTMLInputElement | null>;
   randomWords: string[];
 }) {
-  // const inputWord = useWordContext((state) => state.inputWord);
-  // const setInputWord = useWordContext((state) => state.setInputWord);
-  // const currentWordIndex = useWordContext((state) => state.currentWordIndex);
-  // const setCurrentWordIndex = useWordContext(
-  //   (state) => state.setCurrentWordIndex,
-  // );
-  // const previousWords = useWordContext((state) => state.previousWords);
-  // const setPreviousWords = useWordContext((state) => state.setPreviousWords);
-  //
-  // const typedWords = useWordContext((state) => state.typedWords);
-  // const setTypedWords = useWordContext((state) => state.setTypedWords);
-
   const {
     inputWord,
     setInputWord,
@@ -28,18 +16,31 @@ export function useKeyboardEvent({
     setCurrentWordIndex,
     typedWords,
     setTypedWords,
+    increaseCorrect,
+    increaseIncorrect,
   } = useWordContext((state) => state);
 
   const onFocus = useCallback(
     (e: KeyboardEvent) => {
       inputRef.current?.focus();
 
+      const currentWord = randomWords[currentWordIndex];
+      const previousIndex = currentWordIndex - 1;
+      const previousWord = randomWords[previousIndex];
+      const previousTypedWord = typedWords[previousIndex];
+
+      const typedChar = e.key;
+      const index = inputWord.length;
+
+      // checking each typed key is equal to current word chars
+      if (typedChar === currentWord[index]) {
+        increaseCorrect();
+      } else {
+        increaseIncorrect();
+      }
+
       // pressed backspace key event
       if (e.key === "Backspace" || e.key == "Delete") {
-        const currentWord = randomWords[currentWordIndex];
-        const previousIndex = currentWordIndex - 1;
-        const previousWord = randomWords[previousIndex];
-        const previousTypedWord = typedWords[previousIndex];
         info("from previous words: ", previousWord);
         info("from previous typed words: ", previousTypedWord);
 
@@ -134,6 +135,8 @@ export function useKeyboardEvent({
       setCurrentWordIndex,
       setTypedWords,
       setInputWord,
+      increaseCorrect,
+      increaseIncorrect,
     ],
   );
 
