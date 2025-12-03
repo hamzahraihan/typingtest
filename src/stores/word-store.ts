@@ -11,6 +11,8 @@ export type WordState = {
     raw: number;
     acc: number;
   };
+  correct: number;
+  incorrect: number;
   difficulty: Difficulty;
   state: "IDLE" | "PLAYING" | "FINISHED";
 };
@@ -25,6 +27,8 @@ export type WordActions = {
   setResult: (number: WordState["result"]) => void;
   setDifficulty: (diff: WordState["difficulty"]) => void;
   setState: (diff: WordState["state"]) => void;
+  increaseCorrect: () => void;
+  increaseIncorrect: () => void;
 };
 
 export type WordStore = WordState & WordActions;
@@ -39,6 +43,8 @@ export const defaultInitState: WordState = {
     raw: 0,
     acc: 0,
   },
+  correct: 0,
+  incorrect: 0,
   difficulty: "EASY",
   state: "IDLE",
 };
@@ -62,6 +68,16 @@ export const createWordStore = (initState: WordState = defaultInitState) => {
 
     setResult: ({ wpm, raw, acc }) =>
       set({ result: { wpm: wpm, raw: raw, acc: acc } }),
+
+    increaseCorrect: () =>
+      set((state) => ({
+        correct: state.correct + 1,
+      })),
+
+    increaseIncorrect: () =>
+      set((state) => ({
+        incorrect: state.incorrect + 1,
+      })),
 
     setDifficulty: (diff) => set({ difficulty: diff }),
 
