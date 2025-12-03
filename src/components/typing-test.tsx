@@ -29,6 +29,10 @@ export const TypingTest = ({
   const difficulty = useWordContext((state) => state.difficulty);
   const state = useWordContext((state) => state.state);
   const setState = useWordContext((state) => state.setState);
+
+  const correct = useWordContext((state) => state.correct);
+  const incorrect = useWordContext((state) => state.incorrect);
+
   info("state: ", state);
 
   const [randomWords, setRandomWords] = useState<string[]>([]);
@@ -113,14 +117,28 @@ export const TypingTest = ({
         timer.stop();
         setState("FINISHED");
 
-        const result = new SpeedResult(typedWords, randomWords).compute();
+        const result = new SpeedResult(
+          typedWords,
+          randomWords,
+          correct,
+          incorrect,
+        ).compute();
 
         setResult({ wpm: result.wpm, raw: result.raw, acc: result.acc });
 
         info("timer stopped:", timer.endTime);
       }
     }
-  }, [state, setState, typedWords, timer, randomWords, setResult]);
+  }, [
+    state,
+    setState,
+    typedWords,
+    timer,
+    randomWords,
+    setResult,
+    correct,
+    incorrect,
+  ]);
 
   useEffect(() => {
     const wordCurrent = document.querySelector(".active");
