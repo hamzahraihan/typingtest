@@ -6,15 +6,21 @@ export class SpeedResult {
   private typedWords: string[] = [];
   private timer: Timer = Timer.instance;
   private generatedWords: string[] = [];
+  private correctChars: number = 0;
+  private incorrectChars: number = 0;
 
   constructor(
     words: string[] = [],
     generatedWords: string[] = [],
+    correctChars: number = 0,
+    incorrectChars: number = 0,
     timer: Timer = Timer.instance,
   ) {
     this.typedWords = words;
     this.generatedWords = generatedWords;
     this.timer = timer;
+    this.correctChars = correctChars;
+    this.incorrectChars = incorrectChars;
   }
 
   public compute() {
@@ -44,11 +50,10 @@ export class SpeedResult {
   }
 
   private countAccuracy() {
-    if (!this.typedWords.length) return 0;
-    const correct = this.correctWords().length;
-    const acc = (correct / this.typedWords.length) * 100;
+    const total = this.correctChars + this.incorrectChars;
+    if (total === 0) return 0;
 
-    return acc;
+    return (this.correctChars / total) * 100;
   }
 
   private correctWords(): string[] {
