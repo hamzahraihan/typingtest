@@ -1,6 +1,6 @@
 import { useCallback, type RefObject } from "react";
 import { useWordContext } from "../context/word-store-context.ts";
-import { info } from "../utils/logger.ts";
+import { info, warn } from "../utils/logger.ts";
 
 export function useKeyboardEvent({
   inputRef,
@@ -33,9 +33,14 @@ export function useKeyboardEvent({
       const index = inputWord.length;
 
       // checking each typed key is equal to current word chars
-      if (typedChar === currentWord[index]) {
+      if (e.key === " " || e.ctrlKey || e.altKey || e.shiftKey) {
+        // not include space key
+        warn("not include other key", typedChar, currentWord[index]);
+      } else if (typedChar === currentWord[index]) {
+        warn("typed char is correct", typedChar, currentWord[index]);
         increaseCorrect();
       } else {
+        warn("typed char is incorrect", typedChar, currentWord[index]);
         increaseIncorrect();
       }
 
