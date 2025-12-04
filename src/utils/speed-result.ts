@@ -52,6 +52,8 @@ export class SpeedResult {
   private countAccuracy() {
     const total = this.correctChars + this.incorrectChars;
     if (total === 0) return 0;
+    info("correct total: ", this.correctChars);
+    info("incorrect total: ", this.incorrectChars);
 
     return (this.correctChars / total) * 100;
   }
